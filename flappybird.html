@@ -143,7 +143,12 @@
             
 
 function collisionCallback() {
-    alert("collision detected!");
+    gameOver = true;
+    endGame.setText('Game Over');
+    bird.body.enable = false;
+    pipe[0].body.enable = false;
+    pipe[1].body.enable = false;
+    pipe[2].body.enable = false;
 }
 </script>
 
