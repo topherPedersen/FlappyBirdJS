@@ -1,5 +1,6 @@
 <!doctype html> 
 <!-- FlappyBirdJS by Sanay N., His Father Sanket N., & His Instructor Chris P. -->
+<!-- https://github.com/topherPedersen/FlappyBirdJS -->
 <html lang="en"> 
 <head> 
     <meta charset="UTF-8" />
@@ -93,6 +94,9 @@
         endGame = this.add.text(16, 16, 'Game in progress..', {fontSize: '32px', fill: '#00000' });
     
         cursors = this.input.keyboard.createCursorKeys();
+
+        // Add Collision Detection Between Bird & Pipe(s)
+        this.physics.add.collider(bird, pipe, collisionCallback);
     
     }  
     var xPos = 0;
@@ -126,20 +130,21 @@
 
             }
 
+            /*
             if (bird.body.y == 0 || bird.body.y == 363) {
                 gameOver = true;
                 endGame.setText('Game Over' );
 
             }
-        }
-        // Phaser.Math.distance(1, 2, 3, 4);
- 
-       
+            */
+        }       
     }
    
             
 
-    
+function collisionCallback() {
+    alert("collision detected!");
+}
 </script>
 
 </body>
