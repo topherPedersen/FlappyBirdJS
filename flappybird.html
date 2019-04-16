@@ -1,0 +1,146 @@
+<!doctype html> 
+<!-- FlappyBirdJS by Sanay N., His Father Sanket N., & His Instructor Chris P. -->
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 2</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+    /**
+     **    FlappyBirdJS by Sanay (a Rockstar Coding Student @ theCoderSchool)
+     **    with a little help from his instructor topherPedersen
+     **/
+
+    // REFERENCE (Official Phaser Tutorial Source Code): https://github.com/topherPedersen/OfficialPhaser3Tutorial
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 600,
+        height: 400,
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: {y: 300},
+                debug: false             
+            }   
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    
+    // Game Variables
+    var bird;
+    var cursors;
+    var pipe = []; 
+    var gameOver = false;
+    var endGame; 
+    var distance;         
+
+
+    function preload () {
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('bird', 'assets/bird.png');
+        this.load.image('pipe', 'assets/pipe.png');
+
+    }
+
+    function create () {
+        // Add Sky
+        this.add.image(400, 300, 'sky');
+
+        // Add Flappy Bird
+        bird = this.physics.add.sprite(20, 40, 'bird');
+        // Add Collision Detection
+        bird.setBounce(0.2);
+        bird.setCollideWorldBounds(true);
+        bird.body.setGravityY(300);
+        
+        // TODO: Sanay, use a for-loop to create three pipes.
+        // Reference the "Add Flappy Bird" for how to add a sprite
+        var xPos = 0;
+
+
+        for (var i = 0; i < 3; i++) {
+            pipe[i] = this.physics.add.sprite(150 + xPos, 425, 'pipe');
+            pipe[i].body.setAllowGravity(false);
+            pipe[i].body.setVelocityX(-150);
+            pipe[i].inableBody = true;
+            pipe[i].immovable = true;
+            // Adjust Physics for Pipe(s)
+            // pipe[i].setBounce(0.2);
+            // pipe[i].setCollideWorldBounds(true);
+            // pipe[i].body.setGravityY(0);
+            // this.physics.add.collider(pipe[i]);
+            xPos += 350;
+        }
+
+        // this.physics.add.collider(bird, pipe);
+
+        
+        endGame = this.add.text(16, 16, 'Game in progress..', {fontSize: '32px', fill: '#00000' });
+    
+        cursors = this.input.keyboard.createCursorKeys();
+    
+    }  
+    var xPos = 0;
+    // Main Game Loop
+    function update () {
+        if (gameOver) {
+            for (var i = 0; i < 3; i++) {
+                pipe[i].body.setAllowGravity(false);
+                pipe[i].body.setVelocityX(0);
+                bird.body.setGravityY(0);
+            }
+            return;
+        } else {
+            if (cursors.space.isDown) {
+                bird.setVelocityY(-250);
+                console.log('Space Bar is pressed, I am amazing')
+            }
+
+            // TODO: Sanay, write some code here in the main game loop
+            // to check to see if any of the pipes have gone off screen.
+            // -300
+            for (var i = 0; i < 3; i++) {
+                if (pipe[i].body.x < -380) {
+                    // pipe[i].reset(400, 300);
+                    
+                    pipe[i].x = 400;
+                    pipe[i].y = 425;
+                
+                }
+                
+
+            }
+
+            if (bird.body.y == 0 || bird.body.y == 363) {
+                gameOver = true;
+                endGame.setText('Game Over' );
+
+            }
+        }
+        // Phaser.Math.distance(1, 2, 3, 4);
+ 
+       
+    }
+   
+            
+
+    
+</script>
+
+</body>
+</html>
