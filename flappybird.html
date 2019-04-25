@@ -45,17 +45,18 @@
     // Game Variables
     var bird;
     var cursors;
-    var pipe = []; 
+    var bottom_pipe = []; 
+    var top_pipe = [];
     var gameOver = false;
     var endGame; 
-    var distance;         
+    var distance;    
+    initialYAxisOffset = [];     
 
 
     function preload () {
         this.load.image('sky', 'assets/sky.png');
         this.load.image('bird', 'assets/bird.png');
         this.load.image('pipe', 'assets/pipe.png');
-
     }
 
     function create () {
@@ -73,40 +74,75 @@
         // Reference the "Add Flappy Bird" for how to add a sprite
         var xPos = 0;
 
-
+        var firstRandomNumber;
         for (var i = 0; i < 3; i++) {
-            pipe[i] = this.physics.add.sprite(150 + xPos, 425, 'pipe');
-            pipe[i].body.setAllowGravity(false);
-            pipe[i].body.setVelocityX(-150);
-            pipe[i].inableBody = true;
-            pipe[i].immovable = true;
+            firstRandomNumber = (Math.floor(Math.random() * 10)) + 1;  
+            if (firstRandomNumber < 6) {
+                // add random positive number to pipe's new y position
+                initialYAxisOffset[i] = (Math.floor(Math.random() * 10)) * 10;
+            } else {
+                // add random negative number to pipe's new y position
+                initialYAxisOffset[i] = (Math.floor(Math.random() * 10)) * (-10);
+            }
+        }
+
+        var offset;
+
+        // Create Top Pipes
+        for (var i = 0; i < 3; i++) {
+            offset = initialYAxisOffset[i];
+            top_pipe[i] = this.physics.add.sprite(550 + xPos, -50 + offset, 'pipe');
+            top_pipe[i].body.setAllowGravity(false);
+            top_pipe[i].body.setVelocityX(-150);
+            top_pipe[i].inableBody = true;
+            top_pipe[i].immovable = true;
+            top_pipe[i].flipY = true;
             // Adjust Physics for Pipe(s)
             // pipe[i].setBounce(0.2);
             // pipe[i].setCollideWorldBounds(true);
             // pipe[i].body.setGravityY(0);
             // this.physics.add.collider(pipe[i]);
-            xPos += 350;
+            xPos += 400;
         }
 
-        // this.physics.add.collider(bird, pipe);
+        // Create Bottom Pipes
+        xPos = 0; // reset xPos back to zero
+        for (var i = 0; i < 3; i++) {
+            offset = initialYAxisOffset[i];
+            bottom_pipe[i] = this.physics.add.sprite(550 + xPos, 450 + offset, 'pipe');
+            bottom_pipe[i].body.setAllowGravity(false);
+            bottom_pipe[i].body.setVelocityX(-150);
+            bottom_pipe[i].inableBody = true;
+            bottom_pipe[i].immovable = true;
+            // bottom_pipe[i].flipY = true;
+            // Adjust Physics for Pipe(s)
+            // pipe[i].setBounce(0.2);
+            // pipe[i].setCollideWorldBounds(true);
+            // pipe[i].body.setGravityY(0);
+            // this.physics.add.collider(pipe[i]);
+            xPos += 400;
+        }
 
         
-        endGame = this.add.text(16, 16, 'Game in progress..', {fontSize: '32px', fill: '#00000' });
+        onScreenText = this.add.text(212, 185, '', {fontSize: '32px', fill: '#00000' });
     
         cursors = this.input.keyboard.createCursorKeys();
 
         // Add Collision Detection Between Bird & Pipe(s)
-        this.physics.add.collider(bird, pipe, collisionCallback);
+        this.physics.add.collider(bird, bottom_pipe, collisionCallback);
+        this.physics.add.collider(bird, top_pipe, collisionCallback);
     
     }  
     var xPos = 0;
     // Main Game Loop
     function update () {
         if (gameOver) {
+            bird.body.setGravityY(0);
             for (var i = 0; i < 3; i++) {
-                pipe[i].body.setAllowGravity(false);
-                pipe[i].body.setVelocityX(0);
-                bird.body.setGravityY(0);
+                bottom_pipe[i].body.setAllowGravity(false);
+                bottom_pipe[i].body.setVelocityX(0);
+                top_pipe[i].body.setAllowGravity(false);
+                top_pipe[i].body.setVelocityX(0);
             }
             return;
         } else {
@@ -114,29 +150,27 @@
                 bird.setVelocityY(-250);
                 console.log('Space Bar is pressed, I am amazing')
             }
-
             // TODO: Sanay, write some code here in the main game loop
             // to check to see if any of the pipes have gone off screen.
             // -300
             for (var i = 0; i < 3; i++) {
-                if (pipe[i].body.x < -380) {
-                    // pipe[i].reset(400, 300);
-                    
-                    pipe[i].x = 400;
-                    pipe[i].y = 425;
-                
+                var firstRandomNumber = (Math.floor(Math.random() * 10)) + 1;  
+                if (firstRandomNumber < 6) {
+                    // add random positive number to pipe's new y position
+                    var yAxisOffset = (Math.floor(Math.random() * 10)) * 10;
+                } else {
+                    // add random negative number to pipe's new y position
+                    var yAxisOffset = (Math.floor(Math.random() * 10)) * (-10);
                 }
-                
-
+                if (bottom_pipe[i].body.x < -400) {    
+                    bottom_pipe[i].x = 850;
+                    bottom_pipe[i].y = 450 + yAxisOffset;
+                }
+                if (top_pipe[i].body.x < -400) {                    
+                    top_pipe[i].x = 850;
+                    top_pipe[i].y = -50 + yAxisOffset;
+                }
             }
-
-            /*
-            if (bird.body.y == 0 || bird.body.y == 363) {
-                gameOver = true;
-                endGame.setText('Game Over' );
-
-            }
-            */
         }       
     }
    
@@ -144,11 +178,15 @@
 
 function collisionCallback() {
     gameOver = true;
-    endGame.setText('Game Over');
+    // endGame.setText('Game Over');
     bird.body.enable = false;
-    pipe[0].body.enable = false;
-    pipe[1].body.enable = false;
-    pipe[2].body.enable = false;
+    top_pipe[0].body.enable = false;
+    top_pipe[1].body.enable = false;
+    top_pipe[2].body.enable = false;
+    bottom_pipe[0].body.enable = false;
+    bottom_pipe[1].body.enable = false;
+    bottom_pipe[2].body.enable = false;
+    onScreenText.setText('GAME OVER');
 }
 </script>
 
